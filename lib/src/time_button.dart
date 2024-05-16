@@ -4,7 +4,7 @@ typedef TimeTapCallback = void Function(String time);
 
 class TimeButton extends StatelessWidget {
   const TimeButton({
-    Key? key,
+    super.key,
     required this.time,
     required this.onSelect,
     this.value = false,
@@ -14,7 +14,7 @@ class TimeButton extends StatelessWidget {
     this.activeBackgroundColor,
     this.textStyle,
     this.activeTextStyle,
-  }) : super(key: key);
+  });
 
   final String time;
   final TimeTapCallback onSelect;
@@ -37,7 +37,7 @@ class TimeButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: value
                 ? activeBackgroundColor ?? Theme.of(context).primaryColor
-                : backgroundColor ?? Theme.of(context).backgroundColor,
+                : backgroundColor ?? Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: value

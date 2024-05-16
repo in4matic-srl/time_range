@@ -6,7 +6,7 @@ typedef TimeSelectedCallback = void Function(TimeOfDay hour);
 
 class TimeList extends StatefulWidget {
   TimeList({
-    Key? key,
+    super.key,
     this.padding = 0,
     required this.timeStep,
     required this.firstTime,
@@ -23,8 +23,7 @@ class TimeList extends StatefulWidget {
   })  : assert(
           lastTime.afterOrEqual(firstTime),
           'lastTime not can be before firstTime',
-        ),
-        super(key: key);
+        );
 
   final TimeOfDay firstTime;
   final TimeOfDay lastTime;
