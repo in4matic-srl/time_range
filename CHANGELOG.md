@@ -1,3 +1,11 @@
+## 1.2.0 - 26/08/2024
+
+* Handled the case when the time range crosses the midnight boundary.
+
+## 1.1.1 - 16/05/2024
+
+* Upgraded dependencies
+
 ## 1.1.0 - 12/12/2022
 
 * Integrate a CI system
