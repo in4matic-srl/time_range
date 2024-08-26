@@ -1,6 +1,8 @@
 ![header.jpg](header.jpg)
 
-**DISCONTINUED - Flutter package for selecting a time range with time blocks.**
+**Original project DISCONTINUED**
+
+### Flutter package for selecting a time range with time blocks.**
 
 ## Getting Started
 
