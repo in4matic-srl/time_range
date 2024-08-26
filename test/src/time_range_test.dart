@@ -50,6 +50,48 @@ void main() {
               expect(fromTitleWidget, findsOneWidget);
             },
           );
+          testWidgets(
+            'morning-to-afternoon time range',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  timeBlock: 5,
+                  firstTime: const TimeOfDay(hour: 9, minute: 15),
+                  lastTime: const TimeOfDay(hour: 21, minute: 45),
+                  timeStep: 30,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  onRangeCompleted: (range) {},
+                ),
+              );
+              final lateMorning = find.textContaining('11:15');
+              expect(lateMorning, findsOneWidget);
+
+              final lateNight = find.textContaining('23:15');
+              expect(lateNight, findsNothing);
+            },
+          );
+          testWidgets(
+            'afternoon-to-morning time range',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  timeBlock: 5,
+                  firstTime: const TimeOfDay(hour: 21, minute: 15),
+                  lastTime: const TimeOfDay(hour: 9, minute: 45),
+                  timeStep: 30,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  onRangeCompleted: (range) {},
+                ),
+              );
+              final lateMorning = find.textContaining('11:15');
+              expect(lateMorning, findsNothing);
+
+              final lateNight = find.textContaining('23:15');
+              expect(lateNight, findsOneWidget);
+            },
+          );
         },
       );
       group(
