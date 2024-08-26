@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:time_range/src/time_list.dart';
+import 'package:time_range/src/util/key_extension.dart';
 import 'package:time_range/src/util/time_of_day_extension.dart';
 
 typedef TimeRangeSelectedCallback = void Function(TimeRangeResult? range);
 
 class TimeRange extends StatefulWidget {
-  TimeRange({
+  const TimeRange({
     super.key,
     required this.timeBlock,
     required this.onRangeCompleted,
@@ -25,10 +26,7 @@ class TimeRange extends StatefulWidget {
     this.textStyle,
     this.activeTextStyle,
     this.alwaysUse24HourFormat = false,
-  })  : assert(
-          lastTime.after(firstTime),
-          'lastTime can not be before firstTime',
-        );
+  });
 
   final int timeStep;
   final int timeBlock;
@@ -88,6 +86,7 @@ class _TimeRangeState extends State<TimeRange> {
             child: widget.fromTitle,
           ),
         TimeList(
+          key: widget.key?.withSuffix('_start'),
           firstTime: widget.firstTime,
           lastTime: widget.lastTime
               .subtract(minutes: widget.minimalTimeRange ?? widget.timeBlock),
@@ -110,6 +109,7 @@ class _TimeRangeState extends State<TimeRange> {
           ),
         const SizedBox(height: 8),
         TimeList(
+          key: widget.key?.withSuffix('_end'),
           firstTime: _getFirstTimeEndHour(),
           lastTime: widget.lastTime,
           initialTime: _endHour,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:time_range/src/time_button.dart';
+import 'package:time_range/src/util/key_extension.dart';
 import 'package:time_range/src/util/time_of_day_extension.dart';
 
 typedef TimeSelectedCallback = void Function(TimeOfDay hour);
 
 class TimeList extends StatefulWidget {
-  TimeList({
+  const TimeList({
     super.key,
     this.padding = 0,
     required this.timeStep,
@@ -20,10 +21,7 @@ class TimeList extends StatefulWidget {
     this.textStyle,
     this.activeTextStyle,
     this.alwaysUse24HourFormat = false,
-  })  : assert(
-          lastTime.afterOrEqual(firstTime),
-          'lastTime not can be before firstTime',
-        );
+  });
 
   final TimeOfDay firstTime;
   final TimeOfDay lastTime;
@@ -87,13 +85,14 @@ class _TimeListState extends State<TimeList> {
 
   void _loadHours() {
     hours.clear();
-    var hour =
-        TimeOfDay(hour: widget.firstTime.hour, minute: widget.firstTime.minute);
-    while (hour.beforeOrEqual(widget.lastTime)) {
-      hours.add(
-        hour.hour == TimeOfDay.hoursPerDay ? hour.replacing(hour: 0) : hour,
-      );
-      hour = hour.add(minutes: widget.timeStep);
+    var minutes = widget.firstTime.inMinutes();
+    var endMinutes = widget.lastTime.inMinutes();
+    if (minutes > endMinutes) {
+      endMinutes += TimeOfDay.hoursPerDay * TimeOfDay.minutesPerHour;
+    }
+    while (minutes <= endMinutes) {
+      hours.add(TimeOfDayExtension.fromMinutes(minutes));
+      minutes += widget.timeStep;
     }
   }
 
@@ -109,10 +108,10 @@ class _TimeListState extends State<TimeList> {
         itemExtent: itemExtent,
         itemBuilder: (BuildContext context, int index) {
           final hour = hours[index]!;
-
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: TimeButton(
+              key: widget.key?.withSuffix('_${hour.hour}:${hour.minute}'),
               borderColor: widget.borderColor,
               activeBorderColor: widget.activeBorderColor,
               backgroundColor: widget.backgroundColor,

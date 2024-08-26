@@ -24,9 +24,8 @@ void main() {
             );
 
             final widgetList = find.byType(TimeButton);
-            final numberOfWidget = ParamFactory.firstTime
-                        .subtract(minutes: ParamFactory.secondTime.inMinutes())
-                        .inMinutes() /
+            final numberOfWidget = (ParamFactory.secondTime.inMinutes() -
+                        ParamFactory.firstTime.inMinutes()) /
                     ParamFactory.timeStep +
                 1;
 

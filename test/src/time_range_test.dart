@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:time_range/src/time_list.dart';
 import 'package:time_range/src/time_range.dart';
+import 'package:time_range/src/util/key_extension.dart';
 
 import '../helpers/pump_app.dart';
 import '../utils/param_factory.dart';
@@ -64,10 +65,10 @@ void main() {
                   onRangeCompleted: (range) {},
                 ),
               );
-              final lateMorning = find.textContaining('11:15');
+              final lateMorning = find.textContaining('11:15 AM');
               expect(lateMorning, findsOneWidget);
 
-              final lateNight = find.textContaining('23:15');
+              final lateNight = find.textContaining('11:15 PM');
               expect(lateNight, findsNothing);
             },
           );
@@ -85,10 +86,10 @@ void main() {
                   onRangeCompleted: (range) {},
                 ),
               );
-              final lateMorning = find.textContaining('11:15');
+              final lateMorning = find.textContaining('11:15 AM');
               expect(lateMorning, findsNothing);
 
-              final lateNight = find.textContaining('23:15');
+              final lateNight = find.textContaining('11:15 PM');
               expect(lateNight, findsOneWidget);
             },
           );
@@ -103,6 +104,7 @@ void main() {
             (WidgetTester tester) async {
               await tester.pumpApp(
                 TimeRange(
+                  key: const Key('tr'),
                   timeBlock: ParamFactory.timeBlock,
                   firstTime: ParamFactory.firstTime,
                   lastTime: ParamFactory.secondTime,
@@ -122,7 +124,7 @@ void main() {
               );
               expect(activeTimes, findsNothing);
 
-              final fromTime = find.textContaining(RegExp('10:10'));
+              final fromTime = find.byKey(const Key('tr_start_10:10'));
               expect(fromTime, findsOneWidget);
 
               await tester.tap(fromTime);
@@ -136,7 +138,7 @@ void main() {
               );
               expect(activeTimes, findsOneWidget);
 
-              final toTime = find.textContaining(RegExp('10:30'));
+              final toTime = find.byKey(const Key('tr_end_10:30'));
               expect(toTime, findsOneWidget);
 
               await tester.tap(toTime);
@@ -149,6 +151,269 @@ void main() {
                 ),
               );
               expect(activeTimes, findsNWidgets(2));
+            },
+          );
+          testWidgets(
+            'reselected [from] keeps [to] if to is actually after from '
+            '(morning-to-afternoon)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 30,
+                  firstTime: const TimeOfDay(hour: 11, minute: 45),
+                  lastTime: const TimeOfDay(hour: 13, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_11:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_13:15'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_12:15'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(2));
+            },
+          );
+
+          testWidgets(
+            'reselected [from] keeps [to] if to is actually after from '
+            '(afternoon-to-morning)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 30,
+                  firstTime: const TimeOfDay(hour: 23, minute: 45),
+                  lastTime: const TimeOfDay(hour: 1, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_23:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_1:15'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_0:15'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(2));
+            },
+          );
+
+          testWidgets(
+            'reselected [from] cancels [to] if to is actually before from '
+            '(morning-to-afternoon)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 30,
+                  firstTime: const TimeOfDay(hour: 11, minute: 45),
+                  lastTime: const TimeOfDay(hour: 23, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_11:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_12:15'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_13:15'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(1));
+            },
+          );
+
+          testWidgets(
+            'reselected [from] cancels [to] if to is actually before from '
+            '(afternoon-to-morning)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 15,
+                  firstTime: const TimeOfDay(hour: 23, minute: 45),
+                  lastTime: const TimeOfDay(hour: 11, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_23:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_0:0'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_0:15'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(1));
+            },
+          );
+
+          testWidgets(
+            'reselected [from] cancels [to] if to is inconsistent with block '
+            'duration (morning-to-afternoon)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 60,
+                  firstTime: const TimeOfDay(hour: 11, minute: 45),
+                  lastTime: const TimeOfDay(hour: 23, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_11:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_13:45'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_12:0'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(1));
+            },
+          );
+
+          testWidgets(
+            'reselected [from] cancels [to] if to is inconsistent with block '
+            'duration (morning-to-afternoon)',
+            (WidgetTester tester) async {
+              await tester.pumpApp(
+                TimeRange(
+                  key: const Key('tr'),
+                  timeBlock: 60,
+                  firstTime: const TimeOfDay(hour: 23, minute: 45),
+                  lastTime: const TimeOfDay(hour: 11, minute: 15),
+                  timeStep: 15,
+                  toTitle: const Text(ParamFactory.toTitle),
+                  fromTitle: const Text(ParamFactory.fromTitle),
+                  activeBackgroundColor: ParamFactory.blue,
+                  onRangeCompleted: (range) {},
+                  alwaysUse24HourFormat: true,
+                ),
+              );
+
+              final fromTime = find.byKey(const Key('tr_start_23:45'));
+              expect(fromTime, findsOneWidget);
+              await tester.tap(fromTime);
+              await tester.pumpAndSettle();
+
+              final toTime = find.byKey(const Key('tr_end_1:45'));
+              expect(toTime, findsOneWidget);
+              await tester.tap(toTime);
+              await tester.pumpAndSettle();
+
+              final newFromTime = find.byKey(const Key('tr_start_0:0'));
+              expect(newFromTime, findsOneWidget);
+              await tester.tap(newFromTime);
+              await tester.pumpAndSettle();
+
+              final activeTimes = find.byWidgetPredicate(
+                (widget) => ParamFactory.isContainerWithColor(
+                  widget,
+                  ParamFactory.blue,
+                ),
+              );
+              expect(activeTimes, findsNWidgets(1));
             },
           );
         },
@@ -229,4 +494,14 @@ void main() {
       );
     },
   );
+}
+
+void debugRelevantWidgets() {
+  // debug print all widgets whose key starts with 'tr_'
+  final relevantWidgets = find.byWidgetPredicate(
+    (widget) => widget.key?.value.startsWith('tr_') ?? false,
+  );
+  for (final widget in relevantWidgets.evaluate()) {
+    debugPrint(widget.widget.key?.value);
+  }
 }
