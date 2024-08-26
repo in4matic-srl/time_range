@@ -9,6 +9,11 @@ extension TimeOfDayExtension on TimeOfDay {
     return hour * 60 + minute;
   }
 
+  static TimeOfDay fromMinutes(int minutes) {
+    final m = minutes % (24 * 60);
+    return TimeOfDay(hour: (m ~/ 60) % 24, minute: m % 60);
+  }
+
   bool before(TimeOfDay other) {
     return compare(other) < 0;
   }
@@ -19,12 +24,12 @@ extension TimeOfDayExtension on TimeOfDay {
 
   TimeOfDay add({required int minutes}) {
     final total = inMinutes() + minutes;
-    return TimeOfDay(hour: total ~/ 60, minute: total % 60);
+    return fromMinutes(total);
   }
 
   TimeOfDay subtract({required int minutes}) {
     final total = inMinutes() - minutes;
-    return TimeOfDay(hour: total ~/ 60, minute: total % 60);
+    return fromMinutes(total);
   }
 
   bool beforeOrEqual(TimeOfDay other) {

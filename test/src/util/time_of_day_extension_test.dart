@@ -4,8 +4,8 @@ import 'package:time_range/src/util/time_of_day_extension.dart';
 
 void main() {
   const smallTime = TimeOfDay(hour: 10, minute: 20);
-  const bigTime = TimeOfDay(hour: 40, minute: 40);
-  const cloneBigTime = TimeOfDay(hour: 40, minute: 40);
+  const bigTime = TimeOfDay(hour: 22, minute: 40);
+  const cloneBigTime = TimeOfDay(hour: 22, minute: 40);
 
   group(
     'TimeOfDayExtension',
@@ -109,6 +109,18 @@ void main() {
                   expect(summedInstance, equals(expectedValue));
                 },
               );
+              test(
+                'return a [TimeOfDay] instance with a sum of times that '
+                'overflows midnight',
+                () {
+                  final summedInstance = bigTime.add(minutes: 60 * 23);
+                  final expectedValue = TimeOfDay(
+                    hour: bigTime.hour - 1,
+                    minute: bigTime.minute,
+                  );
+                  expect(summedInstance, equals(expectedValue));
+                },
+              );
             },
           );
           group(
@@ -125,6 +137,19 @@ void main() {
                   );
                   expect(subtractedInstance, equals(expectedValue));
                   //expect(result, result);
+                },
+              );
+
+              test(
+                'return a [TimeOfDay] instance with a difference of times that '
+                'overflows midnight in reverse',
+                () {
+                  final subtractedInstance = bigTime.subtract(minutes: 60 * 23);
+                  final expectedValue = TimeOfDay(
+                    hour: bigTime.hour + 1,
+                    minute: bigTime.minute,
+                  );
+                  expect(subtractedInstance, equals(expectedValue));
                 },
               );
             },
