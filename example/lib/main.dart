@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: Colors.transparent,
               activeBackgroundColor: dark,
               firstTime: const TimeOfDay(hour: 8, minute: 00),
-              lastTime: const TimeOfDay(hour: 20, minute: 00),
+              lastTime: const TimeOfDay(hour: 2, minute: 00),
               initialRange: _timeRange,
               timeStep: 30,
               timeBlock: 30,

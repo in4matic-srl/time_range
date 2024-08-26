@@ -142,10 +142,17 @@ class _TimeRangeState extends State<TimeRange> {
     widget.onFirstTimeSelected?.call(hour);
 
     if (_endHour != null) {
-      if (_endHour!.inMinutes() <= _startHour!.inMinutes() ||
-          (_endHour!.inMinutes() - _startHour!.inMinutes())
-                  .remainder(widget.timeBlock) !=
-              0) {
+      const minutesPerDay = TimeOfDay.hoursPerDay * TimeOfDay.minutesPerHour;
+      var startFromMin = _startHour!.inMinutes() - widget.firstTime.inMinutes();
+      if (startFromMin < 0) {
+        startFromMin += minutesPerDay;
+      }
+      var endFromMin = _endHour!.inMinutes() - widget.firstTime.inMinutes();
+      if (endFromMin < 0) {
+        endFromMin += minutesPerDay;
+      }
+      final duration = endFromMin - startFromMin;
+      if (duration <= 0 || duration % widget.timeBlock != 0) {
         _endHour = null;
         widget.onRangeCompleted(null);
       } else {
