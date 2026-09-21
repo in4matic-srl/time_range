@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:time_range/src/time_list.dart';
 import 'package:time_range/src/util/key_extension.dart';
 import 'package:time_range/src/util/time_of_day_extension.dart';

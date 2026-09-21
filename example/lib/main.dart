@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:time_range/time_range.dart';
 
 void main() => runApp(const MyApp());
